@@ -21,7 +21,8 @@ function removeTime(input, time, times) {
     }
   }
 }
-
+// 2D Array of strings - each subarray corresponds to a person
+// The dimensions would be the number of people and the number of times
 function SCHEDULE(input) {
   const numPeople = input.length;
   const numTimes = input[0].length;
