@@ -1,45 +1,28 @@
-function removeTime(input, time, times) {
-  // Iterating over every person
-  for (let i = 0; i < input.length; i++) {
-    let numValidTimes = 0;
-    let removedTime = false;
-    // Iterating over the person's times
-    for (let j = 0; j < input[i].length; j++) {
-      if (input[i][j] === time) {
-        input[i][j] = "N/A";
-        removedTime = true;
-      } else if (input[i][j] !== "N/A") {
-        numValidTimes++;
-      }
-    }
-    if (removedTime) {
-      // Removing i from times[numValidTimes+1]
-      let index = times[numValidTimes + 1].indexOf(i);
-      times[numValidTimes + 1].splice(index, 1);
-      // Adding i to times[numValidTimes]
-      times[numValidTimes].push(i);
-    }
-  }
-}
 // 2D Array of strings - each subarray corresponds to a person
+// Data incoming with columns: Name, 1st Preference, 2nd Preference, ...
 // The dimensions would be the number of people and the number of times
 function SCHEDULE(input) {
-  const numPeople = input.length;
-  const numTimes = input[0].length;
+  // Reformat input to match spreadsheet
+  const names = input.map(row => row[0]);
+  const data = input.map(row => row.slice(1).reverse());
+
+  const numPeople = data.length;
+  const numTimes = data[0].length;
   let finalSchedule = Array.from({ length: numPeople }, () => "No time available");
   // Making an array with each index corresponding to the number of times each person is available
 
   let times = Array.from({ length: numTimes+1 }, () => []);
-  // Iterating over the input array and counting how many times work for each person
+  // Iterating over the data array and counting how many times work for each person
   for (let i = 0; i < numPeople; i++) {
     let countValidTimes = 0;
     for (let j = 0; j < numTimes; j++) {
-      if (input[i][j] !== "N/A") {
+      if (data[i][j] !== "N/A") {
         countValidTimes++;
       }
     }
     times[countValidTimes].push(i);
   }
+
   // We now have the array times, with each index in the array corresponding to the number of times each person is available to in that subarray
   // We can now iterate over the times array and schedule people
   // We can start with the people who have the least amount of times available, schedule them, and then remove those times from the other people
@@ -54,38 +37,42 @@ function SCHEDULE(input) {
     let firstPerson = times[firstWithPeople][0];
     // Getting the first non-N/A time for the first person
     let firstTime = 0;
-    while (input[firstPerson][firstTime] === "N/A") {
+    while (data[firstPerson][firstTime] === "N/A") {
       firstTime++;
     }
+    
     // Scheduling that person and then removing that time from everyone else
-    finalSchedule[firstPerson] = input[firstPerson][firstTime];
-    removeTime(input, input[firstPerson][firstTime], times);
+    finalSchedule[firstPerson] = data[firstPerson][firstTime];
+    removeTime(data, data[firstPerson][firstTime], times);
   }
-  return finalSchedule;
+  
+  // map name of people back to class
+  finalSchedule = finalSchedule.map((time, index) => [names[index], time]);
+  return finalSchedule
+
 }
 
-function genInput(times, numPeople){
-    let input = [];
-    for(let i = 0; i < numPeople; i++){
-      let person = [];
-      for(let j = 0; j < 3; j++){
-        person.push(times[Math.floor(Math.random() * times.length)]);
+function removeTime(data, time, times) {
+  // Iterating over every person
+  for (let i = 0; i < data.length; i++) {
+    let numValidTimes = 0;
+    let removedTime = false;
+    // Iterating over the person's times
+    for (let j = 0; j < data[i].length; j++) {
+      if (data[i][j] === time) {
+        data[i][j] = "N/A";
+        removedTime = true;
+      } else if (data[i][j] !== "N/A") {
+        numValidTimes++;
       }
-      // Replace repeats with N/A
-      for(let j = 0; j < person.length-1; j++){
-        for(let k = j+1; k < person.length; k++){
-          if(person[j] === person[k]){
-            person[k] = 'N/A';
-          }
-        }
-      }
-      input.push(person);
     }
-    return input;
+    if (removedTime) {
+      // Removing i from times[numValidTimes+1]
+      let index = times[numValidTimes + 1].indexOf(i);
+      times[numValidTimes + 1].splice(index, 1);
+      // Adding i to times[numValidTimes]
+      times[numValidTimes].push(i);
+    }
+  }
 }
 
-times = ["12:30", "1:00", "1:30", "2:00", "2:30", "3:00"];
-numPeople = 5;
-let input = genInput(times, numPeople);
-console.log(input);
-console.log(SCHEDULE(input));
